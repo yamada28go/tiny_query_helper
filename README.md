@@ -5,26 +5,26 @@ This is  C++ library to assist the generation of sql query.
 
 Simple sample are as follows.
 
- DBMS::soci::connector q (" *** DBMS connection string ***");
+    DBMS::soci::connector q (" *** DBMS connection string ***");
  
- const std::vector< std::pair< table_test_1, new_table > > ret =
- q.SELECT_ALL2 <table_test_1, new_table>
- (inner_join2
-  < new_table, table_test_1,
-  condition::equal<
-  typename new_table::column::hoge1,
-  typename table_test_1::column::string_condition > >().
-  where (
-         (new_table::column::hoge >= 1) &&
-         (table_test_1::column::string_condition == "OK")
-         )
-  .group_by< typename new_table::column::hoge, typename new_table::column::hoge1 > ()
-  .order_by < order::desc< typename new_table::column::hoge > >());
+     const std::vector< std::pair< table_test_1, new_table > > ret =
+     q.SELECT_ALL2 <table_test_1, new_table>
+     (inner_join2
+      < new_table, table_test_1,
+      condition::equal<
+      typename new_table::column::hoge1,
+      typename table_test_1::column::string_condition > >().
+      where (
+             (new_table::column::hoge >= 1) &&
+             (table_test_1::column::string_condition == "OK")
+             )
+      .group_by< typename new_table::column::hoge, typename new_table::column::hoge1 > ()
+      .order_by < order::desc< typename new_table::column::hoge > >());
 
-  for (const auto & i : ret)
-  {
-     std::cout << i.first << " : " << i.second << std::endl;
-  }
+      for (const auto & i : ret)
+      {
+         std::cout << i.first << " : " << i.second << std::endl;
+      }
 
 *** Motivation ***
 
