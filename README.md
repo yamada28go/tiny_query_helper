@@ -37,8 +37,8 @@ c++ is static type language.
 c++ can error  check in  the compile time.
 i like c++ style error  check .
 
-When use sql query embedded　in  the c++ language ,  
-we must do  twice　error  check.
+When use sql query embedded in  the c++ language ,  
+we must do  twice error  check.
 The first  is compile time  and other check is running  time.  
 I want to check the sql query and c++ language  at the same time  in compile time.
 
@@ -54,5 +54,6 @@ These are just proto type code.
 *** Dependency ***
 
 ・Boost library
+
 ・SOCI - The C++ Database Access Library 
 
