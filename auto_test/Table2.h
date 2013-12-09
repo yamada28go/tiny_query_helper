@@ -14,7 +14,7 @@ namespace  hoge{
   /**
    * <pre>
    * schema name : "tiny_query_helper_test"
-   * table name  : "table1"
+   * table name  : "table2"
    * remarks     : ""
    *
    * Persistable:
@@ -22,13 +22,13 @@ namespace  hoge{
    *
    * </pre>
    */
-  struct Table1 : public  tiny_query_helper::dto_base {
+  struct Table2 : public  tiny_query_helper::dto_base {
 
 
     //! テーブル名を取得する
     static const std::string get_tabel_name(void)
     {
-      return "table1";
+      return "table2";
     }
 
 
@@ -55,10 +55,10 @@ namespace  hoge{
        * @see java.sql.Types
        */
 	  
-      struct id : public tiny_query_helper::column_type::wrap_int32_t< Table1 >
+      struct id : public tiny_query_helper::column_type::wrap_int32_t< Table2 >
       {
 	id (void) :
-	tiny_query_helper::column_type::wrap_int32_t< Table1 >("id") { }
+	tiny_query_helper::column_type::wrap_int32_t< Table2 >("id") { }
 	static const std::string name_;
       };
 
@@ -80,10 +80,10 @@ namespace  hoge{
        * @see java.sql.Types
        */
 	  
-      struct data1_int : public tiny_query_helper::column_type::wrap_int32_t< Table1 >
+      struct data1_int : public tiny_query_helper::column_type::wrap_int32_t< Table2 >
       {
 	data1_int (void) :
-	tiny_query_helper::column_type::wrap_int32_t< Table1 >("data1_int") { }
+	tiny_query_helper::column_type::wrap_int32_t< Table2 >("data1_int") { }
 	static const std::string name_;
       };
 
@@ -105,10 +105,10 @@ namespace  hoge{
        * @see java.sql.Types
        */
 	  
-      struct data2_string : public tiny_query_helper::column_type::wrap_string< Table1 >
+      struct data2_string : public tiny_query_helper::column_type::wrap_string< Table2 >
       {
 	data2_string (void) :
-	tiny_query_helper::column_type::wrap_string< Table1 >("data2_string") { }
+	tiny_query_helper::column_type::wrap_string< Table2 >("data2_string") { }
 	static const std::string name_;
       };
 
@@ -138,7 +138,8 @@ namespace  hoge{
     };
 
     //テーブル識別ID
-    typedef boost::mpl::int_<1> TABLE_ID;
+    typedef boost::mpl::int_<2> TABLE_ID;
+
 
     //! ------------------------------------
     //! メンバ関数の実態を定義する
@@ -240,10 +241,10 @@ namespace  hoge{
 
 
   // 出力用の<<演算子定義
-  inline std::ostream& operator<<( std::ostream& os, const Table1 & t )
+  inline std::ostream& operator<<( std::ostream& os, const Table2 & t )
   {
 
-    os << "type : Table1 [  ";
+    os << "type : Table2 [  ";
   
     os << "," << "id : " << t.id_ ;
     os << "," << "data1_int : " << t.data1_int_ ;

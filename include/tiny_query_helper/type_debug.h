@@ -28,7 +28,21 @@
 
 //gnu関係
 #include <typeinfo>
+#ifdef _WIN32
+#ifdef _WIN64
+// 64bit Windows
+#else
+// 32bit Windows
+#endif
+#else
+#ifdef __x86_64__
+// 64bit Linux
 #include <cxxabi.h>
+#else
+// 32bit Linux
+#include <cxxabi.h>
+#endif
+#endif
 
 //boost関係
 #include <boost/scoped_ptr.hpp>

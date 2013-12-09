@@ -21,6 +21,8 @@
 
 //C++関係
 #include <vector>
+#include <iostream>
+#include <stdexcept>
 
 #include <soci.h>
 #include <mysql/soci-mysql.h>
@@ -139,6 +141,10 @@ namespace tiny_query_helper
               /* 	std::tm when = it->get<std::tm>(i); */
               /* 	std::cout << asctime(&when); */
               /* 	break; */
+	    default:
+	      //Todo : add default type
+	      throw std::logic_error("no type");
+	      break;
             }
 
 
@@ -242,7 +248,7 @@ namespace tiny_query_helper
 
           //各テーブルのサイズを取得
           const std::size_t table_1_size = Table1::column::get_column_info ().size ();
-          const std::size_t table_2_size = Table2::column::get_column_info ().size ();
+	  //          const std::size_t table_2_size = Table2::column::get_column_info ().size ();
 
           //クエリを実行
           const ::soci::rowset< ::soci::row > rs = (sql_.prepare << query);
