@@ -878,7 +878,7 @@ namespace tiny_query_helper
 			FROM1(query_object< typename where_arg_type_1< T1 >::type > && a)
 		{
 				return std::move(from1_term< T1 >(std::move(a)));
-			}
+		}
 
 		//-------------------------
 
@@ -946,7 +946,7 @@ namespace tiny_query_helper
 				//関数戻り値を作成
 				query_object_where< typename where_arg_type< T1, T2 >::type > ret(t);
 				return ret;
-			}
+		}
 
 		template<typename TABLE1, typename TABLE2>
 		struct from2_term
@@ -1024,7 +1024,7 @@ namespace tiny_query_helper
 			FROM2(query_object<typename mpl_util::table_type_tuple<T2> > && a)
 		{
 				return std::move(from2_term< T1, T2 >(std::move(a)));
-			}
+		}
 
 #undef  SORT_AND_UNIQ_VECTOR
 

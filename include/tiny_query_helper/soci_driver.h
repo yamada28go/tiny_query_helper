@@ -192,6 +192,28 @@ namespace tiny_query_helper
         //select句の定義
 
         template< typename Table1 >
+                std::vector< Table1 > SELECT_ALL1 (void)
+        {
+          std::cout << "in" << std::endl;
+
+          //クエリを取得する
+          const auto query = (boost::format ("select %|| from %|| ;")
+                              % get_all_column<Table1>()
+			      % Table1::get_tabel_name()
+                              ).str ();
+          std::cout << query << std::endl;
+
+          //クエリを実行
+          const ::soci::rowset< ::soci::row > rs = (sql_.prepare << query);
+
+          //処理結果をDBから読み取る
+          return read_from_db< Table1 >(rs);
+
+        }
+
+
+
+        template< typename Table1 >
                 std::vector< Table1 > SELECT_ALL1 (from1_term< Table1 > && q)
         {
           std::cout << "in" << std::endl;
