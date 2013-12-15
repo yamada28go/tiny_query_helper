@@ -281,6 +281,57 @@ BOOST_AUTO_TEST_CASE( table2_inner_join )
 
 }
 
+BOOST_AUTO_TEST_CASE( table2_inner_join_where )
+{
+  using namespace tiny_query_helper;
+
+  {
+    const auto t = ( ( hoge::Table1::column::id > 1 ) && ( hoge::Table2::column::id > 1 ) );
+    tiny_query_helper::debug::print_type_name< decltype(t) >();
+  }
+
+  {
+    const auto t = ( hoge::Table1::column::id > 1 );
+    tiny_query_helper::debug::print_type_name< decltype(t) >();
+  }
+
+  {
+    const auto t = (  hoge::Table2::column::id > 1  );
+    tiny_query_helper::debug::print_type_name< decltype(t) >();
+  }
+
+#if 1
+
+  DBMS::soci::connector q (connection_string);
+
+  const std::vector< std::pair< hoge::Table1, hoge::Table2 > > query_ret =
+    q.SELECT_ALL2 < hoge::Table1, hoge::Table2 >
+    ( FROM2< hoge::Table1, hoge::Table2 >
+      (inner_join2
+       < hoge::Table1, hoge::Table2 ,
+       condition::equal<
+       typename hoge::Table1::column::id,
+       typename hoge::Table2::column::id > >()
+       .where ( ( hoge::Table1::column::id > 1 ) )
+       .group_by< typename hoge::Table1::column::id > ()
+       )
+      );
+
+  BOOST_REQUIRE_EQUAL(2, query_ret.size() );
+  const auto it = query_ret.begin();
+  BOOST_CHECK_EQUAL(2, it->first.id_ );
+  BOOST_CHECK_EQUAL(2, it->first.data1_int_ );
+  BOOST_CHECK_EQUAL("test1", it->first.data2_string_ );
+
+  BOOST_CHECK_EQUAL(2, it->second.id_ );
+  BOOST_CHECK_EQUAL(100, it->second.data1_int_ );
+  BOOST_CHECK_EQUAL("test2", it->second.data2_string_ );
+
+#endif
+
+}
+
+
 BOOST_AUTO_TEST_CASE( table2_inner_join_group_by )
 {
   using namespace tiny_query_helper;

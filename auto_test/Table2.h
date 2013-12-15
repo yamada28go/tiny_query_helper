@@ -37,6 +37,8 @@ namespace  hoge{
     {
 
       //! tiny query helperが必要なテーブル情報一覧を作成する
+
+      struct type{
 	
       /**
        * <pre>
@@ -62,8 +64,6 @@ namespace  hoge{
 	static const std::string name_;
       };
 
-      const static id id;
-	  
 	  
       /**
        * <pre>
@@ -87,8 +87,6 @@ namespace  hoge{
 	static const std::string name_;
       };
 
-      const static data1_int data1_int;
-	  
 	  
       /**
        * <pre>
@@ -112,9 +110,14 @@ namespace  hoge{
 	static const std::string name_;
       };
 
-      const static data2_string data2_string;
-	  
-	  
+      };
+
+      struct data{
+
+	const static ::hoge::Table2::column::type::id id;
+	const static ::hoge::Table2::column::type::data1_int data1_int;
+	const static ::hoge::Table2::column::type::data2_string data2_string;
+
 
       //! カラム情報を取得する
       typedef std::array< const tiny_query_helper::where_condition_base * , 3 > COLUMN_INFO_TYPE;
@@ -129,6 +132,8 @@ namespace  hoge{
 		
 	return std::move(r);
       }
+
+      };
 
       column(void)
       {

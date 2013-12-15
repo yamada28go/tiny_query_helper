@@ -79,7 +79,7 @@ namespace tiny_query_helper
 
           std::string t;
           {
-            const auto info = Table::column::get_column_info ();
+            const auto info = Table::column::data::get_column_info ();
             auto it = info.begin ();
             for (std::size_t i = 0; it != info.end (); it++, i++)
               {
@@ -269,7 +269,7 @@ namespace tiny_query_helper
           std::cout << " ------------------ " << std::endl;
 
           //各テーブルのサイズを取得
-          const std::size_t table_1_size = Table1::column::get_column_info ().size ();
+          const std::size_t table_1_size = Table1::column::data::get_column_info ().size ();
 	  //          const std::size_t table_2_size = Table2::column::get_column_info ().size ();
 
           //クエリを実行
