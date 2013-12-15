@@ -61,6 +61,7 @@
 #include <boost/mpl/sort.hpp>
 #include <boost/mpl/sizeof.hpp>
 #include <boost/mpl/at.hpp>
+#include <boost/mpl/remove.hpp>
 
 #include <boost/mpl/placeholders.hpp>
 #include <boost/mpl/assert.hpp>
@@ -139,7 +140,21 @@ namespace tiny_query_helper
 
 		//!テーブル型情報タプル
 
-		template<typename T1, 
+		/* template<typename T1,  */
+		/* 	typename T2 = boost::mpl::void_, */
+		/* 	typename T3 = boost::mpl::void_, */
+		/* 	typename T4 = boost::mpl::void_, */
+		/* 	typename T5 = boost::mpl::void_> */
+		/* struct table_type_tuple */
+		/* { */
+		/* 	typedef T1 T1_TYPE; */
+		/* 	typedef T2 T2_TYPE; */
+		/* 	typedef T3 T3_TYPE; */
+		/* 	typedef T4 T4_TYPE; */
+		/* 	typedef T5 T5_TYPE; */
+		/* }; */
+
+		template<typename T1,
 			typename T2 = boost::mpl::void_,
 			typename T3 = boost::mpl::void_,
 			typename T4 = boost::mpl::void_,
@@ -152,6 +167,7 @@ namespace tiny_query_helper
 			typedef T4 T4_TYPE;
 			typedef T5 T5_TYPE;
 		};
+
 
 		//! vector型をタプル型へ変換する
 		//! * memo *
@@ -177,6 +193,24 @@ namespace tiny_query_helper
 				typename at<2>::type, typename at<3>::type, typename at<4>::type> type;
 
 		};
+
+		template < typename TUPLE_TYPE >
+		  struct tuple_2_vector
+		  {
+		  private:
+		    typedef boost::mpl::vector<
+		    typename TUPLE_TYPE::T1_TYPE,
+		      typename  TUPLE_TYPE::T2_TYPE,
+		      typename  TUPLE_TYPE::T3_TYPE,
+		      typename  TUPLE_TYPE::T4_TYPE,
+		      typename  TUPLE_TYPE::T5_TYPE
+		    > t_type;
+
+		  public:
+		    typedef typename boost::mpl::remove< t_type ,
+		      boost::mpl::void_ >::type type;
+		    
+		  };
 #endif
 
 	}
@@ -630,6 +664,7 @@ namespace tiny_query_helper
 
 		}
 
+#if 0
 		template<typename WHERE_CONDITION_TYPE >
 		query_object_group_by< typename mpl_util::vector_2_tuple<WHERE_CONDITION_TYPE>::type >
 			where(const where_condition_list<WHERE_CONDITION_TYPE> &list)
@@ -638,8 +673,88 @@ namespace tiny_query_helper
 				query_object< TABLE_TYPE_ >::where_.term_ = list.condition_;
 				return query_object_group_by< RET_TYPE >(*this);
 			}
+#endif
 
+		
+		//! クエリオブジェクトの引数として渡されたテーブル情報と
+		//関数引数として渡されたテーブル情報がマージ可能な型で有るか判定する
+		template< typename T1 , typename T2>
+		  struct static_assert_table_type
+		{
 
+		    static_assert
+		      ( true != std::is_same< typename T1::T1_TYPE ,
+			typename T2::T1_TYPE >::value  , 
+			"Condition table type was wrong. " );
+		    static_assert
+		      ( std::is_same< typename T1::T2_TYPE ,
+			typename T2::T2_TYPE >::value |
+			std::is_same< typename T1::T2_TYPE ,
+			boost::mpl::void_ >::value 
+			, "Condition table type was wrong. " );
+		    static_assert
+		      ( std::is_same< typename T1::T3_TYPE ,
+			typename T2::T3_TYPE >::value |
+			std::is_same< typename T1::T3_TYPE ,
+			boost::mpl::void_ >::value 
+			, "Condition table type was wrong. " );
+
+		    static_assert
+		      ( std::is_same< typename T1::T4_TYPE ,
+			typename T2::T4_TYPE >::value |
+			std::is_same< typename T1::T4_TYPE ,
+			boost::mpl::void_ >::value 
+			, "Condition table type was wrong. " );
+
+		    static_assert
+		      ( std::is_same< typename T1::T5_TYPE ,
+		    	typename T2::T5_TYPE >::value |
+		    	std::is_same< typename T1::T5_TYPE ,
+		    	boost::mpl::void_ >::value
+		    	, "Condition table type was wrong. " );
+
+		};
+
+		//! クエリオブジェクトの引数として渡されたテーブル情報と
+		//関数引数として渡されたテーブル情報がマージ可能な型で有るか判定する
+		template< typename T1 , typename T2>
+		  struct do_marge_sort_vevtor_covert_tuple
+		  {
+		  private:
+		    //マージしてソートする
+		    typedef typename mpl_util::sort_and_uniq_table_vector<	
+		    typename mpl_util::merge_vector<			
+		    typename mpl_util::tuple_2_vector< T1 >::type ,
+		      typename mpl_util::tuple_2_vector< T2 >::type >::type >::type  retT;
+		    
+		  public:
+		    typedef typename mpl_util::vector_2_tuple< retT  >::type type;
+
+		  };
+		
+#define WHERE_RET_TYPE							\
+		typename do_marge_sort_vevtor_covert_tuple		\
+		  < typename mpl_util::vector_2_tuple< WHERE_CONDITION_TYPE >::type , \
+		  TABLE_TYPE_ >::type					\
+		
+		template<typename WHERE_CONDITION_TYPE >
+		query_object_group_by< WHERE_RET_TYPE >
+		  where(const where_condition_list<WHERE_CONDITION_TYPE> &list)
+		  {
+		    //マージ可能な型かチェックを行う
+		    typedef static_assert_table_type
+		      < typename mpl_util::vector_2_tuple<WHERE_CONDITION_TYPE>::type
+		      , TABLE_TYPE_ > check_marge;
+
+		    tiny_query_helper::debug::print_type_name
+		      < WHERE_RET_TYPE >();
+		    
+		    //クエリ条件を返す
+		    query_object< WHERE_RET_TYPE >::where_.term_ = list.condition_;
+		    return query_object_group_by< WHERE_RET_TYPE >(*this);
+		  }
+
+#undef WHERE_RET_TYPE
 
 	};
 

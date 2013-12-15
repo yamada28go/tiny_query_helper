@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( table1_where )
 
   //where条件を指定
   const auto query_ret = q.SELECT_ALL1< hoge::Table1 >
-    ( FROM1< hoge::Table1 >( where( hoge::Table1::column::id == 1) ) );
+    ( FROM1< hoge::Table1 >( where( hoge::Table1::column::data::id == 1) ) );
   
   BOOST_REQUIRE_EQUAL(1, query_ret.size() );
   const auto &t = *query_ret.begin();
@@ -114,7 +114,8 @@ BOOST_AUTO_TEST_CASE( table1_where_and )
     (
      FROM1< hoge::Table1 >
      (
-      where( ( (hoge::Table1::column::data1_int == 2 ) && ( hoge::Table1::column::data2_string == "test1") ) )
+      where( ( (hoge::Table1::column::data::data1_int == 2 ) && 
+	       ( hoge::Table1::column::data::data2_string == "test1") ) )
       )
      );
   
@@ -137,8 +138,8 @@ BOOST_AUTO_TEST_CASE( table1_order_by )
     (
      FROM1< hoge::Table1 >
      (
-      where( hoge::Table1::column::data2_string == "test1" )
-      .order_by < order::desc< typename hoge::Table1::column::data1_int > >()
+      where( hoge::Table1::column::data::data2_string == "test1" )
+      .order_by < order::desc< typename hoge::Table1::column::type::data1_int > >()
       )
      );
   
@@ -181,8 +182,8 @@ BOOST_AUTO_TEST_CASE( table1_group_by )
     (
      FROM1< hoge::Table1 >
      (
-      where( hoge::Table1::column::data2_string == "test1" )
-      .group_by< typename hoge::Table1::column::data2_string >()
+      where( hoge::Table1::column::data::data2_string == "test1" )
+      .group_by< typename hoge::Table1::column::type::data2_string >()
       )
      );
   
@@ -204,9 +205,9 @@ BOOST_AUTO_TEST_CASE( table1_group_by_order_by )
     (
      FROM1< hoge::Table1 >
      (
-      where( hoge::Table1::column::data2_string == "test1" )
-      .group_by< typename hoge::Table1::column::data2_string >()
-      .order_by < order::desc< typename hoge::Table1::column::data1_int > >()
+      where( hoge::Table1::column::data::data2_string == "test1" )
+      .group_by< typename hoge::Table1::column::type::data2_string >()
+      .order_by < order::desc< typename hoge::Table1::column::type::data1_int > >()
       )
      );
   
@@ -234,9 +235,9 @@ BOOST_AUTO_TEST_CASE( table2_inner_join )
       (inner_join2
        < hoge::Table1, hoge::Table2 ,
        condition::equal<
-       typename hoge::Table1::column::id,
-       typename hoge::Table2::column::id > >()
-       .where ( ( hoge::Table1::column::id > 1 ) && ( hoge::Table2::column::id > 1 )  )
+       typename hoge::Table1::column::type::id,
+       typename hoge::Table2::column::type::id > >()
+       .where ( ( hoge::Table1::column::data::id > 1 ) && ( hoge::Table2::column::data::id > 1 )  )
        )
       );
   
@@ -285,22 +286,43 @@ BOOST_AUTO_TEST_CASE( table2_inner_join_where )
 {
   using namespace tiny_query_helper;
 
+#if 0
+
   {
-    const auto t = ( ( hoge::Table1::column::id > 1 ) && ( hoge::Table2::column::id > 1 ) );
+    const auto t = ( ( hoge::Table1::column::data::id > 1 ) && ( hoge::Table2::column::data::id > 1 ) );
     tiny_query_helper::debug::print_type_name< decltype(t) >();
   }
 
   {
-    const auto t = ( hoge::Table1::column::id > 1 );
+    const auto t = ( hoge::Table1::column::data::id > 1 );
     tiny_query_helper::debug::print_type_name< decltype(t) >();
   }
 
   {
-    const auto t = (  hoge::Table2::column::id > 1  );
+    const auto t = (  hoge::Table2::column::data::id > 1  );
     tiny_query_helper::debug::print_type_name< decltype(t) >();
   }
+
+  // {
+  //   const auto t = (  inner_join2
+  //      < hoge::Table1, hoge::Table2 ,
+  //      condition::equal<
+  //      hoge::Table1::column::type::id,
+  //      hoge::Table2::column::type::id > >()  );
+  //   tiny_query_helper::debug::print_type_name< decltype(t)::TABLE_TYPE >();
+  // }
+#endif
 
 #if 1
+
+  {
+    const auto t = (  inner_join2
+       < hoge::Table1, hoge::Table2 ,
+       condition::equal<
+       hoge::Table1::column::type::id,
+       hoge::Table2::column::type::id > >()  );
+    tiny_query_helper::debug::print_type_name< decltype(t)::TABLE_TYPE >();
+  }
 
   DBMS::soci::connector q (connection_string);
 
@@ -310,10 +332,10 @@ BOOST_AUTO_TEST_CASE( table2_inner_join_where )
       (inner_join2
        < hoge::Table1, hoge::Table2 ,
        condition::equal<
-       typename hoge::Table1::column::id,
-       typename hoge::Table2::column::id > >()
-       .where ( ( hoge::Table1::column::id > 1 ) )
-       .group_by< typename hoge::Table1::column::id > ()
+       hoge::Table1::column::type::id,
+       hoge::Table2::column::type::id > >()
+       .where ( ( hoge::Table1::column::data::id > 1 ) )
+       .group_by< hoge::Table1::column::type::id > ()
        )
       );
 
@@ -344,10 +366,10 @@ BOOST_AUTO_TEST_CASE( table2_inner_join_group_by )
       (inner_join2
        < hoge::Table1, hoge::Table2 ,
        condition::equal<
-       typename hoge::Table1::column::id,
-       typename hoge::Table2::column::id > >()
-       .where ( ( hoge::Table1::column::id > 1 ) && ( hoge::Table2::column::id > 1 )  )
-       .group_by< typename hoge::Table2::column::id > ()
+       hoge::Table1::column::type::id,
+       hoge::Table2::column::type::id > >()
+       .where ( ( hoge::Table1::column::data::id > 1 ) && ( hoge::Table2::column::data::id > 1 )  )
+       .group_by< typename hoge::Table2::column::type::id > ()
        )
       );
 
@@ -375,10 +397,10 @@ BOOST_AUTO_TEST_CASE( table2_inner_join_order_by )
       (inner_join2
        < hoge::Table1, hoge::Table2 ,
        condition::equal<
-       typename hoge::Table1::column::id,
-       typename hoge::Table2::column::id > >()
-       .where ( ( hoge::Table1::column::id > 1 ) && ( hoge::Table2::column::id > 1 )  )
-       .order_by< order::desc< typename hoge::Table2::column::id > >()
+       hoge::Table1::column::type::id,
+       hoge::Table2::column::type::id > >()
+       .where ( ( hoge::Table1::column::data::id > 1 ) && ( hoge::Table2::column::data::id > 1 )  )
+       .order_by< order::desc< typename hoge::Table2::column::type::id > >()
        )
       );
 
@@ -416,11 +438,11 @@ BOOST_AUTO_TEST_CASE( table2_inner_join_order_by_group_by )
       (inner_join2
        < hoge::Table1, hoge::Table2 ,
        condition::equal<
-       typename hoge::Table1::column::id,
-       typename hoge::Table2::column::id > >()
-       .where ( ( hoge::Table1::column::id > 1 ) && ( hoge::Table2::column::id > 1 )  )
-       .group_by< typename hoge::Table2::column::id > ()
-       .order_by< order::asc< typename hoge::Table2::column::id > >()
+       typename hoge::Table1::column::type::id,
+       typename hoge::Table2::column::type::id > >()
+       .where ( ( hoge::Table1::column::data::id > 1 ) && ( hoge::Table2::column::data::id > 1 )  )
+       .group_by< typename hoge::Table2::column::type::id > ()
+       .order_by< order::asc< typename hoge::Table2::column::type::id > >()
        )
       );
 
@@ -448,3 +470,6 @@ BOOST_AUTO_TEST_CASE( table2_inner_join_order_by_group_by )
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+
+
