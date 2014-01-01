@@ -84,6 +84,36 @@ BOOST_AUTO_TEST_CASE( table1 )
 
 }
 
+BOOST_AUTO_TEST_CASE( table1_group_by_onry )
+{
+  using namespace tiny_query_helper;
+
+  DBMS::soci::connector q (connection_string);
+  //整列条件だけを指定を指定
+  const auto query_ret = q.SELECT_ALL1< hoge::Table1 >
+    ( FROM1< hoge::Table1 >
+      ( group_by< hoge::Table1::column::type::data2_string >().
+	order_by< order::desc< typename hoge::Table1::column::type::data1_int > >()
+	)
+      );
+
+  BOOST_REQUIRE_EQUAL(2, query_ret.size() );
+  auto t = query_ret.begin();
+
+  //MySQLの実装によっては順不同になるかも
+  BOOST_CHECK_EQUAL(1, t->id_ );
+  BOOST_CHECK_EQUAL(3, t->data1_int_ );
+  BOOST_CHECK_EQUAL("test1", t->data2_string_ );
+
+  t++;
+
+  BOOST_CHECK_EQUAL(3, t->id_ );
+  BOOST_CHECK_EQUAL(1, t->data1_int_ );
+  BOOST_CHECK_EQUAL("test2", t->data2_string_ );
+
+}
+
+
 BOOST_AUTO_TEST_CASE( table1_order_by_onry )
 {
   using namespace tiny_query_helper;
@@ -156,6 +186,7 @@ BOOST_AUTO_TEST_CASE( table1_where_and )
   BOOST_CHECK_EQUAL(2, t.data1_int_ );
   BOOST_CHECK_EQUAL("test1", t.data2_string_ );
 }
+
 
 
 BOOST_AUTO_TEST_CASE( table1_order_by )

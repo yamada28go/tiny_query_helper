@@ -928,7 +928,9 @@ namespace tiny_query_helper
 										   (boost::format("(%1%.%2% = \"%3%\")") % COLUMN_TYPE::BELONG_TABLE_TYPE::get_tabel_name() % co.name_ % c).str());
     }
 
+  //------------
   //WHERE句
+  //------------
 
   template<typename WHERE_CONDITION_TYPE>
     query_object_group_by< typename mpl_util::vector_2_tuple<WHERE_CONDITION_TYPE>::type >
@@ -938,12 +940,75 @@ namespace tiny_query_helper
       return std::move(query_object_group_by<RET_TYPE>(list));
     }
 
+  //------------
   //group_by句
+  //------------
+
+  namespace
+    {
+      namespace work_group_by
+      {
+
+	struct disp{
+	  template<typename T>
+	  void operator ()(T) const{
+	    tiny_query_helper::debug::print_type_name< T >();
+	    //tiny_query_helper::debug::print_type_name< typename T::COLUMN_INFO_TYPE::BELONG_TABLE_TYPE >();
+	  }
+	};
+
+	template< typename T >
+	  struct get_belong_table
+	  {
+	    typedef typename T::BELONG_TABLE_TYPE type;
+	  };
+
+	//order by 指定句をカラムが所属するテーブルのベクタ型に変換する
+	template<typename First, typename... Rest >
+	  struct group_by_specify_2_belong_table_vector
+	  {
+	  private:
+	    //引数ベクタ
+	    typedef boost::mpl::vector< First, Rest... > arg_vec;
+
+	  public:
+	    //変換されたベクタ型
+	    typedef typename boost::mpl::transform< arg_vec ,
+	      get_belong_table< boost::mpl::_1 > >::type type;
+      
+	  };
+      }
+    }
+
+
+  //! group_byカラムが所属するテーブルタプルを取得する
+#define FUNCTION_LOCAL_GET_BELONG_TABLE_TUPLE				\
+  typename mpl_util::vector_2_tuple<					\
+    typename mpl_util::sort_and_uniq_table_vector<				\
+    typename work_group_by::group_by_specify_2_belong_table_vector< First ,  Rest... >::type \
+    >::type								\
+    >::type								\
+
+  template<typename First, typename... Rest >
+    query_object_group_by< FUNCTION_LOCAL_GET_BELONG_TABLE_TUPLE > group_by(void)
+  {
+
+    typedef FUNCTION_LOCAL_GET_BELONG_TABLE_TUPLE TABLE_TYPE;
+    
+    const query_object< TABLE_TYPE > t;
+    query_object_group_by< TABLE_TYPE > ret( t ) ;
+    ret.template group_by< First ,  Rest... >();
+    
+    //    tiny_query_helper::debug::print_type_name< decltype(ret) >();
+    /* std::cout << ret.get_query() << std::endl; */
+
+    return ret;
+  }
+#undef FUNCTION_LOCAL_GET_BELONG_TABLE_TUPLE
 
   //------------
   //order by句
   //------------
-
   namespace
     {
       namespace work_order_by
