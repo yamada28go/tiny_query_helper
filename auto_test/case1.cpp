@@ -30,7 +30,7 @@ BOOST_GLOBAL_FIXTURE(Fixture);
 
 //Test table connection string
 const auto connection_string 
-= "mysql://dbname=tiny_query_helper_test user=root password=modamepo host=192.168.1.13";
+= "mysql://dbname=tiny_query_helper_test user=root password=modamepo host=192.168.1.41";
 
 BOOST_AUTO_TEST_SUITE( one_table_test )
 
@@ -84,6 +84,36 @@ BOOST_AUTO_TEST_CASE( table1 )
 
 }
 
+BOOST_AUTO_TEST_CASE( table1_order_by_onry )
+{
+  using namespace tiny_query_helper;
+
+  DBMS::soci::connector q (connection_string);
+  //整列条件だけを指定を指定
+  const auto query_ret = q.SELECT_ALL1< hoge::Table1 >
+    ( FROM1< hoge::Table1 >
+      ( order_by< order::desc< typename hoge::Table1::column::type::data1_int > >() ) );
+
+  BOOST_REQUIRE_EQUAL(3, query_ret.size() );
+  auto t = query_ret.begin();
+
+  BOOST_CHECK_EQUAL(1, t->id_ );
+  BOOST_CHECK_EQUAL(3, t->data1_int_ );
+  BOOST_CHECK_EQUAL("test1", t->data2_string_ );
+
+  t++;
+
+  BOOST_CHECK_EQUAL(2, t->id_ );
+  BOOST_CHECK_EQUAL(2, t->data1_int_ );
+  BOOST_CHECK_EQUAL("test1", t->data2_string_ );
+
+  t++;
+
+  BOOST_CHECK_EQUAL(3, t->id_ );
+  BOOST_CHECK_EQUAL(1, t->data1_int_ );
+  BOOST_CHECK_EQUAL("test2", t->data2_string_ );
+
+}
 
 BOOST_AUTO_TEST_CASE( table1_where )
 {
