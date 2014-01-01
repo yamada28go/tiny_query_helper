@@ -1115,12 +1115,6 @@ namespace tiny_query_helper
 			      % conditions_.query_).str();
       }
 
-    from1_term(void)
-      {
-	conditions_.query_ = ( boost::format("from %1% ") 
-			       % T1::get_tabel_name() ).str();
-      }
-
       //from句に指定された条件項目
       query_object< typename where_arg_type_1< T1 >::type > conditions_;
 
@@ -1135,12 +1129,6 @@ namespace tiny_query_helper
       return std::move(from1_term< T1 >(std::move(a)));
     }
 
-  template<typename T1>
-    from1_term< T1 >
-    FROM1( void )
-    {
-      return std::move(from1_term< T1 >());
-    }
 
   //-------------------------
 
