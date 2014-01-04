@@ -83,11 +83,12 @@ namespace tiny_query_helper
             auto it = info.begin ();
             for (std::size_t i = 0; it != info.end (); it++, i++)
               {
+		TINY_QUERY_HELPER_LOG( TRACE , 
+				       ( boost::format("column name is  : [ %|| ] " )
+					 % (*it)->name_ ).str() );
+		
                 t.append (Table::get_tabel_name ());
                 t.append (".");
-
-                std::cout << "name : " << (*it)->name_ << std::endl;
-
                 t.append ((*it)->name_);
 
                 if (info.size () == (i + 1))
@@ -111,29 +112,49 @@ namespace tiny_query_helper
                 void set_data_for_column (const ::soci::row & target_info, const size_t & index, Table & dst)
         {
 
-          //型毎に仕訳してデータ構造体に設定する
+          //型毎に仕分けしてデータ構造体に設定する
           const auto & column_info = target_info.get_properties (index);
           switch (column_info.get_data_type ())
             {
             case ::soci::dt_string:
-              std::cout << "string" << std::endl;
+	      TINY_QUERY_HELPER_LOG( TRACE , 
+				     ( boost::format("[ %|| ],  [ %|| ] , [ %|| ] " )
+				       % "string"
+				       % column_info.get_name ()
+				       % index ).str() );
               dst.set_member (column_info.get_name (), target_info.get<std::string>(index));
-
+	      
               break;
             case ::soci::dt_double:
-              std::cout << "double" << std::endl;
+	      TINY_QUERY_HELPER_LOG( TRACE , 
+				     ( boost::format("[ %|| ],  [ %|| ] , [ %|| ] " )
+				       % "double"
+				       % column_info.get_name () 
+				       % index ).str() );
               dst.set_member (column_info.get_name (), target_info.get<double>(index));
               break;
             case ::soci::dt_integer:
-              std::cout << "int" << std::endl;
+	      TINY_QUERY_HELPER_LOG( TRACE , 
+				     ( boost::format("[ %|| ],  [ %|| ] , [ %|| ] " )
+				       % "int"
+				       % column_info.get_name () 
+				       % index ).str() );
               dst.set_member (column_info.get_name (), target_info.get<int>(index));
               break;
             case ::soci::dt_long_long:
-              std::cout << "long" << std::endl;
+	      TINY_QUERY_HELPER_LOG( TRACE , 
+				     ( boost::format("[ %|| ],  [ %|| ] , [ %|| ] " )
+				       % "long long "
+				       % column_info.get_name () 
+				       % index ).str() );
               dst.set_member (column_info.get_name (), target_info.get<long long>(index));
               break;
             case ::soci::dt_unsigned_long_long:
-              std::cout << "long long" << std::endl;
+	      TINY_QUERY_HELPER_LOG( TRACE , 
+				     ( boost::format("[ %|| ],  [ %|| ] , [ %|| ] " )
+				       % "unsigned long long "
+				       % column_info.get_name ()
+				       % index ).str() );
               dst.set_member (column_info.get_name (), target_info.get<unsigned long long>(index));
               break;
               /* case ::soci::dt_date: */
@@ -150,7 +171,6 @@ namespace tiny_query_helper
 
         }
 
-#if 1
         //! DBからデータを読み取る
 
         template < typename Table1 >
@@ -162,19 +182,10 @@ namespace tiny_query_helper
           //std::cout << read_row.size() << std::endl;
           for (const auto & it : read_row)
             {
-	      std::cout << "---" << std::endl;
-
               //作業用一時テーブル
               Table1 t_table;
-
-              std::cout << it.size () << std::endl;
-
               for (std::size_t i = 0; i != it.size (); ++i)
                 {
-                  std::cout << it.size () << " " << i << std::endl;
-                  const auto & props = it.get_properties (i);
-
-                  std::cout << props.get_name () << std::endl;
                   //メンバを設定する
                   set_data_for_column (it, i, t_table);
                 }
@@ -194,14 +205,14 @@ namespace tiny_query_helper
         template< typename Table1 >
                 std::vector< Table1 > SELECT_ALL1 (void)
         {
-          std::cout << "in" << std::endl;
-
           //クエリを取得する
           const auto query = (boost::format ("select %|| from %|| ;")
                               % get_all_column<Table1>()
 			      % Table1::get_tabel_name()
                               ).str ();
-          std::cout << query << std::endl;
+	  TINY_QUERY_HELPER_LOG( INFO , 
+				 ( boost::format("sql query is : [ %|| ] " )
+				   % query ).str() ) ;
 
           //クエリを実行
           const ::soci::rowset< ::soci::row > rs = (sql_.prepare << query);
@@ -216,15 +227,15 @@ namespace tiny_query_helper
         template< typename Table1 >
                 std::vector< Table1 > SELECT_ALL1 (from1_term< Table1 > && q)
         {
-          std::cout << "in" << std::endl;
-
           //クエリを取得する
           const auto query = (boost::format ("select %|| from %||  %|| ")
                               % get_all_column<Table1>()
 			      % Table1::get_tabel_name()
                               % q.conditions_.get_query ()
                               ).str ();
-          std::cout << query << std::endl;
+	  TINY_QUERY_HELPER_LOG( INFO , 
+				 ( boost::format("sql query is : [ %|| ] " )
+				   % query ).str() ) ;
 
           //クエリを実行
           const ::soci::rowset< ::soci::row > rs = (sql_.prepare << query);
@@ -244,33 +255,18 @@ namespace tiny_query_helper
 
           std::vector < std::pair< Table1, Table2 > > ret;
 
-
-          std::cout << "in" << std::endl;
-
-
           //クエリを取得する
-          //const auto query = get_select_all_query<Table1>(q.conditions_.query_);
-
-          //std::cout << query << std::endl;
-
-          std::cout << "---- query --" << std::endl;
-          std::cout << get_all_column<Table1>() << std::endl;
-          std::cout << get_all_column<Table2>() << std::endl;
-
-
           const auto query = (boost::format ("select %|| , %|| from %|| ")
                               % get_all_column<Table1>()
                               % get_all_column<Table2>()
                               % q.conditions_.get_query ()
                               ).str ();
-
-          std::cout << query << std::endl;
-
-          std::cout << " ------------------ " << std::endl;
+	  TINY_QUERY_HELPER_LOG( INFO , 
+				 ( boost::format("sql query is : [ %|| ] " )
+				   % query ).str() ) ;
 
           //各テーブルのサイズを取得
           const std::size_t table_1_size = Table1::column::data::get_column_info ().size ();
-	  //          const std::size_t table_2_size = Table2::column::get_column_info ().size ();
 
           //クエリを実行
           const ::soci::rowset< ::soci::row > rs = (sql_.prepare << query);
@@ -302,8 +298,6 @@ namespace tiny_query_helper
           return ret;
 
         }
-
-#endif
 
         connector (const std::string & connectString)
         {

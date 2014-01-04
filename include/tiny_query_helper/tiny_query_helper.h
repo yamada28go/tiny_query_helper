@@ -26,6 +26,8 @@
 #include <memory>
 #include <typeinfo>
 #include <type_traits>
+#include <functional>
+#include <mutex>
 
 //gnu関係
 #include <typeinfo>
@@ -70,11 +72,14 @@
 #include <boost/typeof/std/string.hpp>
 
 #include <boost/mpl/transform.hpp>
+#include <boost/current_function.hpp>
 
 //スイッチ拡張
 #include <tiny_query_helper/extension_switch.h>
 #include <tiny_query_helper/type_debug.h>
 
+//ロギング
+#include <tiny_query_helper/log.h>
 
 //! ---------[設定]---------
 #define NUM_TABLE_TUPLE_IS_5
@@ -1164,8 +1169,6 @@ namespace tiny_query_helper
 			     "Inner join type must same type!");
 
 	      //! 結合するテーブル情報を設定する。
-	      //ret.table1_ = First::COLUMN1::name_;
-	      //ret.table2_ = First::COLUMN2::name_;
 	      ret.term_ = (boost::format(" %||.%|| %|| %||.%|| ")
 			   % ret.table1_
 			   % First::COLUMN1::name_
@@ -1290,12 +1293,10 @@ namespace tiny_query_helper
     template< typename SRC_TYPE, typename DST_TYPE >
       bool set_if_same_type(const SRC_TYPE & src, DST_TYPE & dst)
     {
-
-      std::cout << " -------- " << std::endl;
-      tiny_query_helper::debug::print_type_name< SRC_TYPE >();
-      tiny_query_helper::debug::print_type_name< DST_TYPE >();
-      //std::cout << " -------- " << std::endl;
-
+      TINY_QUERY_HELPER_LOG( TRACE ,
+			     ( boost::format( "src type : [ %|| ] , dst type [ %|| ]")
+			       % tiny_query_helper::debug::get_demangled_type_name<SRC_TYPE>()
+			       % tiny_query_helper::debug::get_demangled_type_name<DST_TYPE>() ).str() );
 
       using namespace extension_switch;
       return _switch

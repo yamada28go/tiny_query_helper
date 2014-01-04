@@ -16,6 +16,18 @@
 #include "Table1.h"
 #include "Table2.h"
 
+namespace
+{
+  void log_write( const char * file_name ,
+		  const int line,
+		  const char * functio_name ,
+		  const std::string & s)
+  {
+    std::cout << s << std::endl;
+  }
+  
+}
+
 struct Fixture {
 
   Fixture()
@@ -23,6 +35,15 @@ struct Fixture {
     //MySQLの使用を開始
     //(指定しておかないと、事前にドライバを取得する事が出来ない。)
     soci::register_factory_mysql ();
+
+    //ロギング関数を設定
+    tiny_query_helper::log::logger_singleton::GetInstance().
+      set_logging_function( &log_write ); 
+
+    tiny_query_helper::log::logger_singleton::GetInstance().
+      set_log_level( tiny_query_helper::log::TRACE );
+
+
   }
 
 };
@@ -531,6 +552,4 @@ BOOST_AUTO_TEST_CASE( table2_inner_join_order_by_group_by )
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-
-
 

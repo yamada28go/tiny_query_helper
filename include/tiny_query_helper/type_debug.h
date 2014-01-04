@@ -20,11 +20,8 @@
 #define _TINY_QUERY_HELPER_TYPE_DEBUG_H_
 
 // C++標準
-#include <iostream>
-#include <sstream>
 #include <memory>
 #include <typeinfo>
-#include <type_traits>
 
 //gnu関係
 #include <typeinfo>
@@ -45,25 +42,8 @@
 #endif
 
 //boost関係
-#include <boost/scoped_ptr.hpp>
 #include <boost/format.hpp>
-
-#include <boost/typeof/typeof.hpp>
-
-//boost mpl関係
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/vector_c.hpp>
-#include <boost/mpl/for_each.hpp>
-#include <boost/mpl/unique.hpp>
-#include <boost/mpl/sort.hpp>
-#include <boost/mpl/sizeof.hpp>
-#include <boost/mpl/at.hpp>
-
-#include <boost/mpl/placeholders.hpp>
-#include <boost/mpl/assert.hpp>
-//#include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
-
+#include <tiny_query_helper/log.h>
 
 namespace tiny_query_helper
 {
@@ -71,57 +51,30 @@ namespace tiny_query_helper
   namespace debug
   {
 
-    //! 複雑な型の型情報を表示するデバッグマクロ
-#define PRINT_TYPE_INFO(__SRC_EXPRESSIONS__)				\
-    do{									\
-      int status;							\
-      char * ret = abi::__cxa_demangle(typeid(BOOST_TYPEOF(__SRC_EXPRESSIONS__)).name(), 0, 0, &status); \
-      if(NULL != ret){							\
-	std::cout << ret << std::endl;					\
-      }									\
-      free(ret);							\
-    }while(false)
-
-    //! 複雑な型の型情報を表示するデバッグマクロ
-    //! boost autoを使って、得体の知れない型を強制的に実体化させた後に、型情報をチェックする。
-#define PRINT_TYPE_INFO_BOOST(__SRC_EXPRESSIONS__)			\
-    do{									\
-      BOOST_AUTO(x , ( __SRC_EXPRESSIONS__ ) );				\
-      int status;							\
-      char * ret = abi::__cxa_demangle(typeid(BOOST_TYPEOF(x)).name(), 0, 0, &status); \
-      if(NULL != ret){							\
-	std::cout << ret << std::endl;					\
-      }									\
-      free(ret);							\
-    }while(false)
+    //! 型名を取得する
+    template<typename DST_TYPE>
+      std::string get_demangled_type_name (void)
+      {
+	DST_TYPE *dst = 0;
+	int status;
+	std::unique_ptr<char> ret
+	  ( ( char * )(abi::__cxa_demangle (typeid ( *dst ).name (), 0, 0, &status) ));
+	if (NULL != ret)
+	  {
+	    return std::string( ret.get() );
+	  }
+	throw std::runtime_error(" demangle was fail ");
+      }
 
     //! 型名を表示する
     template<typename DST_TYPE>
-    void
-    print_type_name (void)
-    {
-      DST_TYPE *dst = 0;
-      int status;
-      char * ret = abi::__cxa_demangle (typeid ( *dst).name (), 0, 0, &status);
-      if (NULL != ret)
-        {
-          std::cout << ret << std::endl;
-        }
-      free (ret);
-    }
-
-    struct print_type
-    {
-
-      template<class T>
       void
-      operator()(T) const
+      print_type_name (void)
       {
-        print_type_name<T>();
-        std::cout << print_type_name<T>() << std::endl;
+	TINY_QUERY_HELPER_LOG( DEBUG ,
+			       ( boost::format( "type is [%||]")
+				 % get_demangled_type_name<DST_TYPE>() ).str() );
       }
-    };
-
   }
 }
 
