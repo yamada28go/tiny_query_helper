@@ -310,8 +310,10 @@ namespace tiny_query_helper
 	  TINY_QUERY_HELPER_LOG( INFO , 
 				 ( boost::format("sql query is : [ %|| ] " )
 				   % query ).str() ) ;
+
+	  
+
 	}
-	
 
         connector (const std::string & connectString)
         {
