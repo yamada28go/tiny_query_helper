@@ -667,32 +667,25 @@ namespace tiny_query_helper
 
 	  //typedef typename mpl_util::vector_2_tuple<WHERE_CONDITION_TYPE>::type RET_TYPE;
 	  query_object< TABLE_TYPE_ >::inner_join_.term_ = list.condition_;
-
-
 	}
 
-#if 0
-      template<typename WHERE_CONDITION_TYPE >
-	query_object_group_by< typename mpl_util::vector_2_tuple<WHERE_CONDITION_TYPE>::type >
-	where(const where_condition_list<WHERE_CONDITION_TYPE> &list)
-	{
-	  typedef typename mpl_util::vector_2_tuple<WHERE_CONDITION_TYPE>::type RET_TYPE;
-	  query_object< TABLE_TYPE_ >::where_.term_ = list.condition_;
-	  return query_object_group_by< RET_TYPE >(*this);
-	}
-#endif
-
-		
       //! クエリオブジェクトの引数として渡されたテーブル情報と
       //関数引数として渡されたテーブル情報がマージ可能な型で有るか判定する
       template< typename T1 , typename T2>
-	struct static_assert_table_type
+	void static_assert_table_type(void)
 	{
 
+	  TINY_QUERY_HELPER_LOG
+	    ( TRACE ,
+	      ( boost::format( "[ %|| ]  [ %|| ] ")
+	  	% tiny_query_helper::debug::get_demangled_type_name<T1>()
+	  	% tiny_query_helper::debug::get_demangled_type_name<T2>() ).str() );
+
 	  static_assert
-	  ( true != std::is_same< typename T1::T1_TYPE ,
-	    typename T2::T1_TYPE >::value  , 
-	    "Condition table type was wrong. " );
+	    ( std::is_same< typename T1::T1_TYPE ,
+	      typename T2::T1_TYPE >::value  ,
+	      "Condition table type was wrong. " );
+
 	  static_assert
 	  ( std::is_same< typename T1::T2_TYPE ,
 	    typename T2::T2_TYPE >::value |
@@ -719,8 +712,9 @@ namespace tiny_query_helper
 	    std::is_same< typename T1::T5_TYPE ,
 	    boost::mpl::void_ >::value
 	    , "Condition table type was wrong. " );
-
-	};
+	}
+      
+      
 
       //! クエリオブジェクトの引数として渡されたテーブル情報と
       //関数引数として渡されたテーブル情報がマージ可能な型で有るか判定する
@@ -749,12 +743,9 @@ namespace tiny_query_helper
 	where(const where_condition_list<WHERE_CONDITION_TYPE> &list)
 	{
 	  //マージ可能な型かチェックを行う
-	  typedef static_assert_table_type
+	  static_assert_table_type
 	    < typename mpl_util::vector_2_tuple<WHERE_CONDITION_TYPE>::type
-	    , TABLE_TYPE_ > check_marge;
-
-	  tiny_query_helper::debug::print_type_name
-	    < WHERE_RET_TYPE >();
+	    , TABLE_TYPE_ >();
 		    
 	  //クエリ条件を返す
 	  query_object< WHERE_RET_TYPE >::where_.term_ = list.condition_;
