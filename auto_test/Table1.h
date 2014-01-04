@@ -4,6 +4,7 @@
 #include <array>
 #include <tiny_query_helper/extension_switch.h>
 #include <tiny_query_helper/tiny_query_helper.h>
+#include <tiny_query_helper/soci_driver.h>
 
 namespace hoge {
 
@@ -199,7 +200,22 @@ namespace hoge {
         std::string data2_string_;
 
 
+    private:
+	//DBアクセスオブジェクト
+	friend class tiny_query_helper::DBMS::soci::connector;
 
+	//! 挿入クエリ生成関数
+	std::string get_insert_string( void ) const 
+	  {
+	    return std::move
+	      (
+	       ( boost::format
+		 (
+		  " INSERT INTO table1 ( id,data1_int,data2_string ) VALUES ( ` %|| ` , ` %|| ` , ` %|| ` ) ;")
+		 % id_ 
+		 % data1_int_ 
+		 % data2_string_ ).str() );
+	  }
 
         //! ------------------------------------
         //! メンバ情報定義メソッド

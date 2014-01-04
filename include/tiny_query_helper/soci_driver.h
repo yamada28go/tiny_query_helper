@@ -299,6 +299,20 @@ namespace tiny_query_helper
 
         }
 
+	//---------------
+	//insert句を作成
+	//---------------
+	template< typename Table >
+	void insert( const Table & ref_table)
+	{
+          //クエリを取得する
+          const auto query = ref_table.get_insert_string();
+	  TINY_QUERY_HELPER_LOG( INFO , 
+				 ( boost::format("sql query is : [ %|| ] " )
+				   % query ).str() ) ;
+	}
+	
+
         connector (const std::string & connectString)
         {
           sql_.open (connectString);
