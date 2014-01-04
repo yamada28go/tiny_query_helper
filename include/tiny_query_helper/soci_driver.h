@@ -303,6 +303,15 @@ namespace tiny_query_helper
 	//insert句を作成
 	//---------------
 	template< typename Table >
+	void insert( std::vector< Table > & ref_table_vector )
+	{
+	  for( const auto & t : ref_table_vector )
+	    {
+	      insert( t );
+	    }
+	}
+
+	template< typename Table >
 	void insert( const Table & ref_table)
 	{
           //クエリを取得する
@@ -311,8 +320,8 @@ namespace tiny_query_helper
 				 ( boost::format("sql query is : [ %|| ] " )
 				   % query ).str() ) ;
 
-	  
-
+	  //クエリ実行
+	  sql_ << query;
 	}
 
         connector (const std::string & connectString)

@@ -129,7 +129,7 @@ struct Table2 : public  tiny_query_helper::dto_base {
 };
 
     //テーブル識別ID
-    typedef boost::mpl::int_<2> TABLE_ID;
+    typedef boost::mpl::int_<3> TABLE_ID;
 
 	//! ------------------------------------
 	//! メンバ関数の実態を定義する
@@ -203,11 +203,11 @@ INSERT INTO table2 (
 			
 	VALUES
 (
-		` %|| `
+		' %|| '
 		,
-			` %|| `
+			' %|| '
 		,
-			` %|| `
+			' %|| '
 		)
 			;
 )delimiter";
